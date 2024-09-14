@@ -41,4 +41,8 @@ public class Codes {
             new Tuple<>("7E", 31),
             new Tuple<>("7F", 32)
     );
+    public final static String errorLabel = "<ERROR>";
+    public final static String sourceLabel = "<S>";
+    public final static String destinationLabel = "<D>";
+    public final static String parameterLabel = "<P>";
 }

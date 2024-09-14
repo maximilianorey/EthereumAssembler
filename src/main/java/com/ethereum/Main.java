@@ -1,5 +1,6 @@
 package com.ethereum;
 
+import com.ethereum.exceptions.ParserException;
 import com.ethereum.outputs.Outputs;
 import com.ethereum.parser.Parser;
 
@@ -11,16 +12,14 @@ public class Main {
         System.err.println("printCode <assembly>");
         System.err.println("solidityInject <assembly>");
     }
-    public static void main(String[] argv) throws IOException {
+    public static void main(String[] argv) throws IOException, ParserException {
         if(argv.length < 3){
             printError();
             System.exit(1);
         }
-        BufferedReader input = new BufferedReader(new FileReader(argv[2]));
-        Parser parser = new Parser();
-        parser.processFile(input);
-        input.close();
-        switch (argv[1]){
+        Parser parser = new Parser(new File(argv[1]),argv[argv.length-1].equals("--hardhat-2-compatibility"));
+        parser.processFile();
+        switch (argv[0]){
             case "fromTemplate":
                 Outputs.fromTypescriptTemplate(parser,argv);
                 break;

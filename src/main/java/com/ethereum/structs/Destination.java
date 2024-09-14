@@ -1,14 +1,14 @@
 package com.ethereum.structs;
 
 public class Destination {
-    private final long index;
+    private final int index;
     private final DestinationType destinationType;
-    public Destination(long index, DestinationType destinationType){
+    public Destination(int index, DestinationType destinationType){
         this.index = index;
         this.destinationType = destinationType;
     }
 
-    public long getIndex() {
+    public int getIndex() {
         return index;
     }
 
@@ -26,6 +26,6 @@ public class Destination {
 
     @Override
     public int hashCode() {
-        return (int)(index % Integer.MAX_VALUE) + destinationType.hashCode();
+        return index + destinationType.hashCode();
     }
 }

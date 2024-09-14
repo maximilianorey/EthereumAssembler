@@ -1,48 +1,45 @@
 package com.ethereum.outputs;
 
+import com.ethereum.exceptions.ParserException;
 import com.ethereum.parser.Parser;
+import com.ethereum.utils.Codes;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.*;
+import java.util.HashMap;
 import java.util.stream.Collectors;
 
 public class Outputs {
-    public static void fromTypescriptTemplate(Parser parser, String[] argv) throws IOException {
-        if(argv.length < 5){
+    public static void fromTypescriptTemplate(Parser parser, String[] argv) throws IOException, ParserException {
+        if(argv.length < 4){
             System.err.println("fromTemplate <assembly> <input_file> <output_file>");
             System.exit(1);
         }
-        BufferedReader assemblyInput = new BufferedReader(new FileReader(argv[2]));
-        BufferedReader input = new BufferedReader(new FileReader(argv[3]));
-        BufferedWriter writer = new BufferedWriter(new FileWriter(argv[4]));
-        String codeStr = parser.generateCode(assemblyInput);
+        BufferedReader input = new BufferedReader(new FileReader(argv[2]));
+        BufferedWriter writer = new BufferedWriter(new FileWriter(argv[3]));
+        String codeStr = parser.generateCode(new HashMap<>());
         for(String line = input.readLine(); line!=null;line = input.readLine()){
-            String[] splited = line.split("<P>");
-            if(splited.length == 1){
-                writer.write(line.replace("<BINARYCODE>","0x" + codeStr));
-            }else{
+            String[] splited = line.split(Codes.parameterLabel);
+            if(splited.length != 1){
                 for(int i = 1;i<splited.length; i+=2){
-                    splited[i] = "[" +  parser.getParameter(splited[i]).stream().map(Object::toString).collect(Collectors.joining(",")) + "]";
+                    splited[i] = "[" +  parser.getParameter(splited[i]).map(x -> Integer.toString(x+1)).collect(Collectors.joining(",")) + "]";
                 }
-                writer.write(String.join("", splited).replace("<BINARYCODE>","0x" + codeStr));
+                line = String.join("", splited);
             }
+            writer.write(line.replace("<BINARYCODE>","0x" + codeStr));
             writer.write("\n");
         }
-        assemblyInput.close();
         input.close();
         writer.close();
     }
 
-    public static void printCode(Parser parser, String[] argv) throws IOException {
-        BufferedReader assemblyInput = new BufferedReader(new FileReader(argv[2]));
-        System.out.println(parser.generateCode(assemblyInput));
+    public static void printCode(Parser parser, String[] argv) throws IOException, ParserException {
+        System.out.println(parser.generateCode(new HashMap<>()));
         parser.getParametersSet().forEach(entry -> System.out.println(entry.getKey() + ": [" +  entry.getValue().stream().map(Object::toString).collect(Collectors.joining(",")) + "]"));
-        assemblyInput.close();
     }
 
-    public static void solidityInject(Parser parser, String[] argv) throws IOException {
-        BufferedReader assemblyInput = new BufferedReader(new FileReader(argv[2]));
-        String code = parser.generateCode(assemblyInput);
+    public static void solidityInject(Parser parser, String[] argv) throws IOException, ParserException {
+        String code = parser.generateCode(new HashMap<>());
         System.out.println("bytes memory dat = new bytes("+ parser.getTotalLength() +");");
         System.out.println("assembly{");
         int lastIndex = code.length()-64;
@@ -59,6 +56,5 @@ public class Outputs {
 
         System.out.println("\tmstore(proxyAddr,create(0,dat," + parser.getTotalLength() + "))");
         System.out.println("}");
-        assemblyInput.close();
     }
 }
