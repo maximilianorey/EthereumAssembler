@@ -45,4 +45,5 @@ public class Codes {
     public final static String sourceLabel = "<S>";
     public final static String destinationLabel = "<D>";
     public final static String parameterLabel = "<P>";
+    public final static String importLabel = "<IMPORT>";
 }

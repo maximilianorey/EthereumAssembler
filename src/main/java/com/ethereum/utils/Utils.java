@@ -2,7 +2,10 @@ package com.ethereum.utils;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Collection;
+
 public class Utils {
+    public static double LOG2 = Math.log(2) * 8;
     public static boolean equalsWithNullCase(Object elem1, Object elem2){
         if(elem1==null) return elem2==null;
         return elem1.equals(elem2);
@@ -38,7 +41,7 @@ public class Utils {
     }
 
     public static int calculateSize(int index){
-        return (int)Math.ceil(Math.log(index)/Math.log(2));
+        return (int)Math.ceil(Math.log(index)/ LOG2);
     }
 
     public static String byteArrayToHex(byte[] arr){
@@ -50,10 +53,32 @@ public class Utils {
         return res.toString();
     }
 
-    public static <T extends Throwable> void ifLabel(String line, String delimiter, ConsumerT<String,T> func) throws T{
+    public static <T extends Throwable> void ifLabel(String line, String delimiter, Consumer<String,T> func) throws T{
         String[] splited = line.split(delimiter);
         if(splited.length>1){
             func.accept(splited[1]);
         }
+    }
+
+    public static <T,E extends Throwable> void forEach(Collection<T> c, Consumer<T,E> func) throws E {
+        for(T elem: c){
+            func.accept(elem);
+        }
+    }
+
+    public static <T,E extends Throwable> void forEach(Collection<T> c, BiConsumer<T,Integer,E> func) throws E {
+        int index = 0;
+        for(T elem: c){
+            func.accept(elem,index);
+            index += 1;
+        }
+    }
+
+    public static <U,T,E extends Throwable> U reduceCollection(Collection<T> input, U base, BiFunction<T,U,U,E> func) throws E {
+        U actual = base;
+        for(T elem: input){
+            actual =func.apply(elem,actual);
+        }
+        return actual;
     }
 }
