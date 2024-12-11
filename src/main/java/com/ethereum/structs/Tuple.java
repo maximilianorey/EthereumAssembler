@@ -1,9 +1,9 @@
 package com.ethereum.structs;
 
 import com.ethereum.exceptions.NotImplemented;
-import com.ethereum.utils.Utils;
 
 import java.util.Map;
+import java.util.Objects;
 
 public class Tuple<T,V> implements Map.Entry<T,V> {
     private final T key;
@@ -28,7 +28,7 @@ public class Tuple<T,V> implements Map.Entry<T,V> {
     public boolean equals(Object o) {
         if(o==null) return false;
         if(o==this) return true;
-        if(o instanceof Tuple<?,?> anotherTuple) return Utils.equalsWithNullCase(this.key,anotherTuple.key) && Utils.equalsWithNullCase(this.value,anotherTuple.value);
+        if(o instanceof Tuple<?,?> anotherTuple) return Objects.equals(this.key, anotherTuple.key) && Objects.equals(this.value,anotherTuple.value);
         return false;
     }
 

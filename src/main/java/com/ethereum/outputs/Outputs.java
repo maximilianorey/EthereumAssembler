@@ -33,21 +33,22 @@ public class Outputs {
         writer.close();
     }
 
-    public static void printCode(Parser parser, String[] argv) throws IOException, ParserException {
+    public static void printCode(Parser parser) throws IOException, ParserException {
         System.out.println(parser.generateCode(new HashMap<>()));
         parser.getParametersSet().forEach(entry -> System.out.println(entry.getKey() + ": [" +  entry.getValue().stream().map(Object::toString).collect(Collectors.joining(",")) + "]"));
     }
 
-    public static void solidityInject(Parser parser, String[] argv) throws IOException, ParserException {
+    public static void solidityInject(Parser parser) throws IOException, ParserException {
         String code = parser.generateCode(new HashMap<>());
-        System.out.println("bytes memory dat = new bytes("+ parser.getTotalLength() +");");
+        int lengthMod32 = parser.getTotalLength() % 32;
+        int fixedLength = lengthMod32==0 ? parser.getTotalLength() : (parser.getTotalLength() + 32 - lengthMod32);
+        System.out.println("bytes memory dat = new bytes("+  fixedLength +");");
         System.out.println("assembly{");
-        int lastIndex = code.length()-64;
-        for(int i = 0; i<lastIndex;i+=64){
-            System.out.println("\tmstore(add(dat,"+ i/2 + "), 0x" + String.join("",code.substring(i,i+64)) + ")");
+        int index;
+        for(index = 0; index+64<code.length();index+=64){
+            System.out.println("\tmstore(add(dat,"+ index/2 + "), 0x" + String.join("",code.substring(index,index+64)) + ")");
         }
-        String substring = StringUtils.rightPad(code.substring(lastIndex),64,"0");
-        System.out.println("\tmstore(add(dat,"+ lastIndex/2 + "), 0x" + String.join("",substring) + ")");
+        System.out.println("\tmstore(add(dat,"+ index/2 + "), 0x" + String.join("",StringUtils.rightPad(code.substring(index),64,"0")) + ")");
 
         parser.getParametersSet().forEach(entry -> {
             String parameterKey = entry.getKey();

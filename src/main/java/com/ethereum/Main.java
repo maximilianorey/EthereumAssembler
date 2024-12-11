@@ -30,10 +30,10 @@ public class Main {
                 Outputs.fromTypescriptTemplate(parser,argv);
                 break;
             case "printCode":
-                Outputs.printCode(parser,argv);
+                Outputs.printCode(parser);
                 break;
             case "solidityInject":
-                Outputs.solidityInject(parser,argv);
+                Outputs.solidityInject(parser);
                 break;
             default:
                 printError();
